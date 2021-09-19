@@ -1,8 +1,6 @@
-﻿using RemCon.Shared.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace RemCon.Client.Clients
@@ -16,7 +14,7 @@ namespace RemCon.Client.Clients
             _http = http;
         }
 
-        public async Task SetDevice(AudioDevice device)
+        public async Task SetDevice(string device)
         {
             await _http.GetAsync($"api/control/SetAudioDevice?device={device}");
         }
@@ -24,6 +22,12 @@ namespace RemCon.Client.Clients
         public async Task SetVolume(int volume)
         {
             await _http.GetAsync($"api/control/SetVolume?volume={volume}");
+        }
+        
+        public async Task<List<string>> GetAudioDevices()
+        {
+            var result = await _http.GetFromJsonAsync<List<string>>($"api/control/GetAudioDevices");
+            return result;
         }
     }
 }

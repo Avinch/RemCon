@@ -1,25 +1,25 @@
-﻿using RemCon.Shared.Enums;
-using RemCon.Shared.Extensions;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using RemCon.Shared.Config;
 
 namespace RemCon.Server.Services
 {
     public class ControlService
     {
-
-        private const string NirCmdPath =
-            @"C:\nircmd\nircmd.exe";
-
+        private readonly RemConConfig _config;
+        
+        public ControlService(RemConConfig config)
+        {
+            _config = config;
+        }
+        
         public void Lock()
         {
             SendCommand("lockws");
         }
 
-        public void SetAudioDevice(AudioDevice device)
+        public void SetAudioDevice(string device)
         {
-            var deviceName = device.GetDescription();
-
-            SendCommand($"setdefaultsounddevice \"{deviceName}\"");
+            SendCommand($"setdefaultsounddevice \"{device}\"");
         }
 
         public void SetVolume(int volume)
@@ -29,7 +29,7 @@ namespace RemCon.Server.Services
 
         private void SendCommand(string cmd)
         {
-            Process.Start(NirCmdPath, cmd);
+            Process.Start(_config.NirCmdExeLocation, cmd);
         } 
     }
 }

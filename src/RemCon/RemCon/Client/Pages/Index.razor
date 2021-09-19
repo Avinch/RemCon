@@ -1,17 +1,22 @@
 ﻿@page "/"
-
 @using RemCon.Client.Clients
-@using RemCon.Shared.Enums
-
 @inject ControlClient _client;
 
 <MatH4>RemCon</MatH4>
 
 <MatH6>Output Device</MatH6>
 
-<MatButton Raised="true" OnClick="@(() => SetDevice(AudioDevice.Speakers))">speaker</MatButton>
-
-<MatButton Raised="true" OnClick="@(() => SetDevice(AudioDevice.Headset))">headset</MatButton>
+@if (!IsLoading)
+{
+    @foreach (var device in _audioDevices)
+    {
+        <MatButton Raised="true" OnClick="@(() => SetDevice(device))">@device</MatButton>
+    }
+}
+else
+{
+    <p>Loading devices...</p>
+}
 
 <hr />
 
@@ -19,31 +24,35 @@
 
 <MatSlider ValueMin="0" ValueMax="65535" @bind-Value="Volume"></MatSlider>
 
-
-
 @code{
     private int _volume;
-
-    public int Volume
+    private List<string> _audioDevices;
+    private bool IsLoading = false;
+    
+    private int Volume
     {
-        get
-        {
-            return _volume;
-        }
+        get => _volume;
         set
         {
             _volume = value;
             UpdateVolume().RunSynchronously();
         }
     }
-
-    public async Task UpdateVolume()
+    
+    protected override async Task OnInitializedAsync()
     {
-        await _client.SetVolume(_volume);
-
+        IsLoading = true;
+        _audioDevices = await _client.GetAudioDevices();
+        await base.OnInitializedAsync();
+        IsLoading = false;
     }
 
-    public async Task SetDevice(AudioDevice device)
+    private async Task UpdateVolume()
+    {
+        await _client.SetVolume(_volume);
+    }
+
+    private async Task SetDevice(string device)
     {
         await _client.SetDevice(device);
     }
