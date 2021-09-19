@@ -1,0 +1,50 @@
+﻿@page "/"
+
+@using RemCon.Client.Clients
+@using RemCon.Shared.Enums
+
+@inject ControlClient _client;
+
+<MatH4>RemCon</MatH4>
+
+<MatH6>Output Device</MatH6>
+
+<MatButton Raised="true" OnClick="@(() => SetDevice(AudioDevice.Speakers))">speaker</MatButton>
+
+<MatButton Raised="true" OnClick="@(() => SetDevice(AudioDevice.Headset))">headset</MatButton>
+
+<hr />
+
+<MatH6>Volume</MatH6>
+
+<MatSlider ValueMin="0" ValueMax="65535" @bind-Value="Volume"></MatSlider>
+
+
+
+@code{
+    private int _volume;
+
+    public int Volume
+    {
+        get
+        {
+            return _volume;
+        }
+        set
+        {
+            _volume = value;
+            UpdateVolume().RunSynchronously();
+        }
+    }
+
+    public async Task UpdateVolume()
+    {
+        await _client.SetVolume(_volume);
+
+    }
+
+    public async Task SetDevice(AudioDevice device)
+    {
+        await _client.SetDevice(device);
+    }
+}
